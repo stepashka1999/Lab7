@@ -74,5 +74,10 @@ namespace Lab7
         {
             ResultImageBox.Image = Stab.Stabilizate().Resize(ResultImageBox.Width, ResultImageBox.Height, Emgu.CV.CvEnum.Inter.Linear);
         }
+        
+        private void GetBriskToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ResultImageBox.Image = Stab.GetBriskPoints().Resize(ResultImageBox.Width, ResultImageBox.Height, Emgu.CV.CvEnum.Inter.Linear);
+        }
     }
 }

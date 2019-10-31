@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Emgu.CV;
+using Emgu.CV.CvEnum;
 using Emgu.CV.Features2D;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
@@ -41,11 +42,62 @@ namespace Lab7
             return points;
         }
 
-        private MKeyPoint[] GetBriskPoints(Image<Bgr, byte> img)
+        public Image<Bgr, byte> GetBriskPoints()
         {
-            MKeyPoint[] points = BriskDetector.Detect(img.Copy().Convert<Gray, byte>().Mat);
+            //базой будет являться изменённое изображение
 
-            return points;
+            VectorOfKeyPoint GFP1 = new VectorOfKeyPoint();
+
+            UMat baseDesc = new UMat();
+
+            var SecondImgGray = SecondImage.Copy().Convert<Gray, byte>();
+
+            UMat bimg = SecondImgGray.Mat.GetUMat(AccessType.Read);
+
+            VectorOfKeyPoint GFP2 = new VectorOfKeyPoint();
+
+            UMat twistedDesc = new UMat();
+
+            var baseImgGray = Image.Copy().Convert<Gray, byte>();
+
+            UMat timg = baseImgGray.Mat.GetUMat(AccessType.Read);
+
+            //получение необработанной информации о характерных точках изображений
+
+            detector.DetectRaw(bimg, GFP1);
+
+            //генерация описания характерных точек изображений
+
+            BriskDetector.Compute(bimg, GFP1, baseDesc);
+            detector.DetectRaw(timg, GFP2);
+            BriskDetector.Compute(timg, GFP2, twistedDesc);
+
+            //класс позволяющий сравнивать описания наборов ключевых точек
+            BFMatcher matcher = new BFMatcher(DistanceType.L2);
+
+            //массив для хранения совпадений характерных точек
+            VectorOfVectorOfDMatch matches = new VectorOfVectorOfDMatch();
+            //добавление описания базовых точек
+            matcher.Add(baseDesc);
+            //сравнение с описанием изменённых
+            matcher.KnnMatch(twistedDesc, matches, 2, null);
+            //3й параметр - количество ближайших соседей среди которых осуществляется поиск совпадений
+            //4й параметр - маска, в данном случае не нужна
+
+            //маска для определения отбрасываемых значений (аномальных и не уникальных)
+            Mat mask = new Mat(matches.Size, 1, DepthType.Cv8U, 1);
+            mask.SetTo(new MCvScalar(255));
+            //определение уникальных совпадений
+            Features2DToolbox.VoteForUniqueness(matches, 0.8, mask);
+
+            //отбрасывание совпадения, чьи параметры масштабирования и поворота не совпадают с параметрами
+            
+            int nonZeroCount = Features2DToolbox.VoteForSizeAndOrientation(GFP1, GFP1, matches, mask, 1.5, 20);
+            var res = Image.CopyBlank();
+
+            Features2DToolbox.DrawMatches(SecondImage, GFP1, Image, GFP2, matches, res, new MCvScalar(255, 0, 0), new MCvScalar(255, 0, 0), mask);
+
+            return res;
         }
 
         private MKeyPoint[] GetFastDPoints(Image<Bgr, byte> img)
@@ -121,8 +173,8 @@ namespace Lab7
             var destPoints = LukasKanade();
             var srcPoints = MKeyToPoint(GetGFTPoints(Image));
 
-            Mat homographyMatrix = CvInvoke.FindHomography(destPoints, srcPoints);
-
+            Mat homographyMatrix = CvInvoke.FindHomography(destPoints, srcPoints, RobustEstimationAlgorithm.LMEDS);
+            
             var destImage = new Image<Bgr, byte>(Image.Size);
 
             CvInvoke.WarpPerspective(SecondImage, destImage, homographyMatrix, destImage.Size);
