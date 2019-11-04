@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Emgu.CV;
+using Emgu.CV.CvEnum;
 using Emgu.CV.Features2D;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
@@ -20,12 +21,24 @@ namespace Lab7
         
         // - Detectors
         GFTTDetector detector = new GFTTDetector(40, 0.01, 5, 3, true);
-        Brisk BriskDetector = new Brisk();
-        FastFeatureDetector FastDetector = new FastFeatureDetector();
-
         public Stabilizator(string FileName)
         {
             Image = new Image<Bgr, byte>(FileName);
+        }
+
+        public Stabilizator()
+        {
+            
+        }
+
+        public void SetFirstImage(Image<Bgr, byte> img)
+        {
+            Image = img;
+        }
+
+        public void SetSecondImage(Image<Bgr,byte> img)
+        {
+            SecondImage = img;
         }
 
         public void LoadSecondImage(string FileName)
@@ -37,20 +50,6 @@ namespace Lab7
         private MKeyPoint[] GetGFTPoints(Image<Bgr,byte> img)
         {
             MKeyPoint[] points = detector.Detect(img.Copy().Convert<Gray, byte>().Mat);
-
-            return points;
-        }
-
-        private MKeyPoint[] GetBriskPoints(Image<Bgr, byte> img)
-        {
-            MKeyPoint[] points = BriskDetector.Detect(img.Copy().Convert<Gray, byte>().Mat);
-
-            return points;
-        }
-
-        private MKeyPoint[] GetFastDPoints(Image<Bgr, byte> img)
-        {
-            MKeyPoint[] points = FastDetector.Detect(img.Copy().Convert<Gray, byte>().Mat);
 
             return points;
         }
@@ -129,7 +128,70 @@ namespace Lab7
 
             return destImage;
         }
-       
+
+        public Image<Bgr, byte> BriskDotComparator(int f = 0)
+        {
+            //генератор описания ключевых точек
+            Brisk descriptor = new Brisk();
+            //поскольку в данном случае необходимо посчитать обратное преобразование
+            //базой будет являться изменённое изображение
+            VectorOfKeyPoint GFP1 = new VectorOfKeyPoint();
+            UMat baseDesc = new UMat();
+
+            var secondImgGray = SecondImage.Copy().Convert<Gray, byte>();
+            UMat bimg = secondImgGray.Mat.GetUMat(AccessType.Read);
+            VectorOfKeyPoint GFP2 = new VectorOfKeyPoint();
+            UMat twistedDesc = new UMat();
+
+            var baseImgGray = Image.Copy().Convert<Gray, byte>();
+            UMat timg = baseImgGray.Mat.GetUMat(AccessType.Read);
+
+            //получение необработанной информации о характерных точках изображений
+            detector.DetectRaw(bimg, GFP1);
+            //генерация описания характерных точек изображений
+            descriptor.Compute(bimg, GFP1, baseDesc);
+
+            detector.DetectRaw(timg, GFP2);
+            descriptor.Compute(timg, GFP2, twistedDesc);
+            //класс позволяющий сравнивать описания наборов ключевых точек
+            BFMatcher matcher = new BFMatcher(DistanceType.L2);
+
+            //массив для хранения совпадений характерных точек
+            VectorOfVectorOfDMatch matches = new VectorOfVectorOfDMatch();
+            //добавление описания базовых точек
+            matcher.Add(baseDesc);
+            //сравнение с описанием изменённых
+            matcher.KnnMatch(twistedDesc, matches, 2, null);
+            //3й параметр - количество ближайших соседей среди которых осуществляется поиск совпадений
+            //4й параметр - маска, в данном случае не нужна
+            //маска для определения отбрасываемых значений (аномальных и не уникальных)
+            Mat mask = new Mat(matches.Size, 1, DepthType.Cv8U, 1);
+            mask.SetTo(new MCvScalar(255));
+            //определение уникальных совпадений
+            Features2DToolbox.VoteForUniqueness(matches, 0.8, mask);
+
+            //отбрасывание совпадения, чьи параметры масштабирования и поворота не совпадают с параметрами
+            int nonZeroCount = Features2DToolbox.VoteForSizeAndOrientation(GFP1, GFP1, matches, mask, 1.5, 20);
+
+            if(f == 0)
+            {
+                var res = Image.CopyBlank();
+                Features2DToolbox.DrawMatches(SecondImage, GFP1, Image, GFP2, matches, res, new MCvScalar(255, 0, 0), new MCvScalar(255, 0, 0), mask);
+                return res;
+            }
+            else
+            {
+                Mat homography;
+                //получение матрицы гомографии
+                homography = Features2DToolbox.GetHomographyMatrixFromMatchedFeatures(GFP1, GFP2, matches, mask, 2);
+
+                var res = Image.CopyBlank();
+
+                CvInvoke.WarpPerspective(SecondImage, res, homography, res.Size);
+
+                return res;
+            }
+        }
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Emgu.CV;
+using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,9 @@ namespace Lab7
         }
 
         Stabilizator Stab;
+        VideoCapture Video;
+
+        private int VideoFunction = 0; // | 0 - Nothing | 1 - First StabilizatingMethod | 2 - Second Stabilizating Method 
 
         private void drowHaractPointsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -74,5 +78,16 @@ namespace Lab7
         {
             ResultImageBox.Image = Stab.Stabilizate().Resize(ResultImageBox.Width, ResultImageBox.Height, Emgu.CV.CvEnum.Inter.Linear);
         }
+
+        private void briskStabilizateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ResultImageBox.Image = Stab.BriskDotComparator().Resize(ResultImageBox.Width, ResultImageBox.Height, Emgu.CV.CvEnum.Inter.Linear);
+        }
+
+        private void brislStabilizatorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ResultImageBox.Image = Stab.BriskDotComparator(1).Resize(ResultImageBox.Width, ResultImageBox.Height, Emgu.CV.CvEnum.Inter.Linear);
+        }
+
     }
 }

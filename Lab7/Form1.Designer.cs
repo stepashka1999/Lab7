@@ -40,6 +40,9 @@
             this.drowHaractPointsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stabilizateImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.homographyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.functionSecondPartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.briskStabilizateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.brislStabilizatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.FirstImageBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ResultImageBox)).BeginInit();
             this.menuStrip1.SuspendLayout();
@@ -65,7 +68,8 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadToolStripMenuItem,
-            this.funtionToolStripMenuItem});
+            this.funtionToolStripMenuItem,
+            this.functionSecondPartToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(800, 24);
@@ -116,7 +120,7 @@
             // drowHaractPointsToolStripMenuItem
             // 
             this.drowHaractPointsToolStripMenuItem.Name = "drowHaractPointsToolStripMenuItem";
-            this.drowHaractPointsToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.drowHaractPointsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.drowHaractPointsToolStripMenuItem.Text = "Drow HaractPoints";
             this.drowHaractPointsToolStripMenuItem.Click += new System.EventHandler(this.drowHaractPointsToolStripMenuItem_Click);
             // 
@@ -133,6 +137,29 @@
             this.homographyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.homographyToolStripMenuItem.Text = "Homography";
             this.homographyToolStripMenuItem.Click += new System.EventHandler(this.homographyToolStripMenuItem_Click);
+            // 
+            // functionSecondPartToolStripMenuItem
+            // 
+            this.functionSecondPartToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.briskStabilizateToolStripMenuItem,
+            this.brislStabilizatorToolStripMenuItem});
+            this.functionSecondPartToolStripMenuItem.Name = "functionSecondPartToolStripMenuItem";
+            this.functionSecondPartToolStripMenuItem.Size = new System.Drawing.Size(132, 20);
+            this.functionSecondPartToolStripMenuItem.Text = "Function Second Part";
+            // 
+            // briskStabilizateToolStripMenuItem
+            // 
+            this.briskStabilizateToolStripMenuItem.Name = "briskStabilizateToolStripMenuItem";
+            this.briskStabilizateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.briskStabilizateToolStripMenuItem.Text = "Brisk  Dot Coparator";
+            this.briskStabilizateToolStripMenuItem.Click += new System.EventHandler(this.briskStabilizateToolStripMenuItem_Click);
+            // 
+            // brislStabilizatorToolStripMenuItem
+            // 
+            this.brislStabilizatorToolStripMenuItem.Name = "brislStabilizatorToolStripMenuItem";
+            this.brislStabilizatorToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.brislStabilizatorToolStripMenuItem.Text = "Brisl Stabilizator";
+            this.brislStabilizatorToolStripMenuItem.Click += new System.EventHandler(this.brislStabilizatorToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -167,6 +194,9 @@
         private System.Windows.Forms.ToolStripMenuItem secondImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stabilizateImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem homographyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem functionSecondPartToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem briskStabilizateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem brislStabilizatorToolStripMenuItem;
     }
 }
 
